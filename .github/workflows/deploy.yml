@@ -110,6 +110,9 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
         working-directory: ./infra
+      - name: Importar bucket S3 existente (si ya fue creado antes)
+        run: terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
+        working-directory: ./infra
       - run: terraform apply -auto-approve -var="bucket_name=${{ secrets.BUCKET_NAME }}"
         working-directory: ./infra
 
