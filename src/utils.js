@@ -1,5 +1,3 @@
-const secretToken = "7f3a9c2e8b1d4f6a9c3e7b2d8f1a4c6e9b3d7f2a1e5c8b0d";
-
 function calculateTotal(price, tax) {
   return price + tax;
 }
