@@ -130,5 +130,13 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
         working-directory: ./infra
+      - name: Importar recursos existentes antes de destruir
+        run: |
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_public_access_block.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_website_configuration.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_policy.public_read "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_object.index "${{ secrets.BUCKET_NAME }}/index.html" || true
+        working-directory: ./infra
       - run: terraform destroy -auto-approve -var="bucket_name=${{ secrets.BUCKET_NAME }}"
         working-directory: ./infra
