@@ -109,12 +109,12 @@ jobs:
           aws-region: us-east-1
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
-        working-directory: ./infra
+        working-directory: ./environments/dev
       - name: Importar bucket S3 existente (si ya fue creado antes)
-        run: terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
-        working-directory: ./infra
+        run: terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
+        working-directory: ./environments/dev
       - run: terraform apply -auto-approve -var="bucket_name=${{ secrets.BUCKET_NAME }}"
-        working-directory: ./infra
+        working-directory: ./environments/dev
 
   terraform-destroy:
     name: Destruir Infraestructura (Limpieza manual)
@@ -129,14 +129,14 @@ jobs:
           aws-region: us-east-1
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init
-        working-directory: ./infra
+        working-directory: ./environments/dev
       - name: Importar recursos existentes antes de destruir
         run: |
-          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
-          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_public_access_block.site "${{ secrets.BUCKET_NAME }}" || true
-          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_website_configuration.site "${{ secrets.BUCKET_NAME }}" || true
-          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_bucket_policy.public_read "${{ secrets.BUCKET_NAME }}" || true
-          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" aws_s3_object.index "${{ secrets.BUCKET_NAME }}/index.html" || true
-        working-directory: ./infra
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_bucket.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_bucket_public_access_block.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_bucket_website_configuration.site "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_bucket_policy.public_read "${{ secrets.BUCKET_NAME }}" || true
+          terraform import -var="bucket_name=${{ secrets.BUCKET_NAME }}" module.site.aws_s3_object.index "${{ secrets.BUCKET_NAME }}/index.html" || true
+        working-directory: ./environments/dev
       - run: terraform destroy -auto-approve -var="bucket_name=${{ secrets.BUCKET_NAME }}"
-        working-directory: ./infra
+        working-directory: ./environments/dev

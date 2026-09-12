@@ -8,16 +8,20 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = var.aws_region
+locals {
+  common_tags = merge(
+    {
+      Proyecto      = "DevSecOps-Lab"
+      Entorno       = var.environment
+      GestionadoPor = "Terraform"
+    },
+    var.tags
+  )
 }
 
 resource "aws_s3_bucket" "site" {
   bucket = var.bucket_name
-  tags = {
-    Proyecto = "DevSecOps-Lab3-4"
-    Entorno  = "laboratorio"
-  }
+  tags   = local.common_tags
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -53,7 +57,7 @@ resource "aws_s3_bucket_policy" "public_read" {
 resource "aws_s3_object" "index" {
   bucket       = aws_s3_bucket.site.id
   key          = "index.html"
-  source       = "${path.module}/website/index.html"
+  source       = var.index_file_path
   content_type = "text/html"
-  etag         = filemd5("${path.module}/website/index.html")
+  etag         = filemd5(var.index_file_path)
 }
